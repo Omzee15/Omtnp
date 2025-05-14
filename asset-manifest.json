@@ -1,0 +1,18 @@
+{
+  "files": {
+    "main.css": "/Omtnp/static/css/main.fde93a15.css",
+    "main.js": "/Omtnp/static/js/main.041ebda8.js",
+    "static/js/959.36601086.chunk.js": "/Omtnp/static/js/959.36601086.chunk.js",
+    "static/js/453.030a6035.chunk.js": "/Omtnp/static/js/453.030a6035.chunk.js",
+    "static/media/pune.png": "/Omtnp/static/media/pune.2b5d9c0652f82acacc9f.png",
+    "index.html": "/Omtnp/index.html",
+    "main.fde93a15.css.map": "/Omtnp/static/css/main.fde93a15.css.map",
+    "main.041ebda8.js.map": "/Omtnp/static/js/main.041ebda8.js.map",
+    "959.36601086.chunk.js.map": "/Omtnp/static/js/959.36601086.chunk.js.map",
+    "453.030a6035.chunk.js.map": "/Omtnp/static/js/453.030a6035.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.fde93a15.css",
+    "static/js/main.041ebda8.js"
+  ]
+}
