@@ -69,7 +69,16 @@ function App() {
               >
                  Hi! I'm HireScout, I will be taking your technical interview today.
                  <br />
-                 Upload your resume to discuss your projects in-depth, then press the Play button to begin.
+                 <br />
+                 <div style={{ fontSize: "0.9em", fontWeight: "normal" }}>
+                   <strong>How to get started:</strong>
+                   <br />
+                   1. Start interview - Click the Play button to begin
+                   <br />
+                   2. Upload resume - Share your resume for project discussions
+                   <br />
+                   3. Voila ! Start with the interview, All the BEST ! 
+                 </div>
               </div>
               <Altair />
               <CodeQuestion />
