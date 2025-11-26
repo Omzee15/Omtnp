@@ -18,7 +18,54 @@ export default function ResumeUpload({ onClose }: { onClose: () => void }) {
   const { client } = useLiveAPIContext();
   const dropAreaRef = useRef<HTMLDivElement>(null);
 
-  const extractTextFromFile = async (file: File): Promise<string> => {
+  const extractTextFromTextFile = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const text = event.target?.result as string;
+          resolve(text);
+        } catch (err) {
+          reject(err);
+        }
+      };
+      reader.onerror = (err) => reject(err);
+      reader.readAsText(file);
+    });
+  };
+
+  const extractTextFromPdf = async (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const fileReader = new FileReader();
+
+      fileReader.onload = async (event) => {
+        try {
+          const typedArray = new Uint8Array(event.target?.result as ArrayBuffer);
+          const pdf = await pdfjs.getDocument({ data: typedArray }).promise;
+          
+          let fullText = '';
+          for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const textContent = await page.getTextContent();
+            const pageText = textContent.items
+              .map((item: any) => item.str)
+              .join(' ');
+            fullText += pageText + '\n';
+          }
+          
+          resolve(fullText);
+        } catch (err) {
+          console.error("PDF extraction error:", err);
+          reject(err);
+        }
+      };
+
+      fileReader.onerror = (err) => reject(err);
+      fileReader.readAsArrayBuffer(file);
+    });
+  };
+
+  const extractTextFromFile = useCallback(async (file: File): Promise<string> => {
     if (file.type === "application/pdf") {
       return extractTextFromPdf(file);
     } else if (
@@ -32,7 +79,7 @@ export default function ResumeUpload({ onClose }: { onClose: () => void }) {
     } else {
       throw new Error("Unsupported file type. Please upload a PDF, DOC, TXT, or RTF file.");
     }
-  };
+  }, []);
 
   const handleFiles = useCallback(async (file: File) => {
     setIsLoading(true);
@@ -56,7 +103,7 @@ export default function ResumeUpload({ onClose }: { onClose: () => void }) {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [extractTextFromFile]);
 
   useEffect(() => {
     // Add drag and drop event handlers
@@ -120,53 +167,6 @@ export default function ResumeUpload({ onClose }: { onClose: () => void }) {
     if (!file) return;
     
     handleFiles(file);
-  };
-
-  const extractTextFromTextFile = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        try {
-          const text = event.target?.result as string;
-          resolve(text);
-        } catch (err) {
-          reject(err);
-        }
-      };
-      reader.onerror = (err) => reject(err);
-      reader.readAsText(file);
-    });
-  };
-
-  const extractTextFromPdf = async (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const fileReader = new FileReader();
-
-      fileReader.onload = async (event) => {
-        try {
-          const typedArray = new Uint8Array(event.target?.result as ArrayBuffer);
-          const pdf = await pdfjs.getDocument({ data: typedArray }).promise;
-          
-          let fullText = '';
-          for (let i = 1; i <= pdf.numPages; i++) {
-            const page = await pdf.getPage(i);
-            const textContent = await page.getTextContent();
-            const pageText = textContent.items
-              .map((item: any) => item.str)
-              .join(' ');
-            fullText += pageText + '\n';
-          }
-          
-          resolve(fullText);
-        } catch (err) {
-          console.error("PDF extraction error:", err);
-          reject(err);
-        }
-      };
-
-      fileReader.onerror = (err) => reject(err);
-      fileReader.readAsArrayBuffer(file);
-    });
   };
 
   const handleSubmit = () => {
