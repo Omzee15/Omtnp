@@ -17,7 +17,7 @@
 /**
  * this module is just mock data, intended to make it easier to develop and style the logger
  */
-import type { StreamingLog } from "../../multimodal-live-types";
+import type { StreamingLog } from "../../types";
 
 const soundLogs = (n: number): StreamingLog[] =>
   new Array(n).fill(0).map(
@@ -90,19 +90,12 @@ export const mockLogs: StreamingLog[] = [
     date: new Date(),
     type: "client.send",
     message: {
-      clientContent: {
-        turns: [
-          {
-            role: "User",
-            parts: [
-              {
-                text: "How much wood could a woodchuck chuck if a woodchuck could chuck wood",
-              },
-            ],
-          },
-        ],
-        turnComplete: true,
-      },
+      turns: [
+        {
+          text: "How much wood could a woodchuck chuck if a woodchuck could chuck wood",
+        },
+      ],
+      turnComplete: true,
     },
   },
   {
@@ -138,14 +131,12 @@ export const mockLogs: StreamingLog[] = [
     date: new Date(),
     type: "client.toolResponse",
     message: {
-      toolResponse: {
-        functionResponses: [
-          {
-            response: { success: true },
-            id: "akslaj-10102",
-          },
-        ],
-      },
+      functionResponses: [
+        {
+          response: { success: true },
+          id: "akslaj-10102",
+        },
+      ],
     },
   },
 ];

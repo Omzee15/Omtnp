@@ -8,10 +8,9 @@
  *     http://www.apache.org/licenses/LICENSE-2.0
  */
 
-import { type FunctionDeclaration, SchemaType } from "@google/generative-ai";
+import { type FunctionDeclaration, Type, LiveServerToolCall } from "@google/genai";
 import { useEffect, useState, memo } from "react";
 import { useLiveAPIContext } from "../../contexts/LiveAPIContext";
-import { ToolCall } from "../../multimodal-live-types";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { vs2015 as dark } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import "./code-question.scss";
@@ -21,36 +20,36 @@ export const declaration: FunctionDeclaration = {
   name: "show_code_question",
   description: "Displays a coding question for the interview candidate to solve.",
   parameters: {
-    type: SchemaType.OBJECT,
+    type: Type.OBJECT,
     properties: {
       title: {
-        type: SchemaType.STRING,
+        type: Type.STRING,
         description: "Title of the coding question",
       },
       description: {
-        type: SchemaType.STRING,
+        type: Type.STRING,
         description: "Detailed description of the problem to solve",
       },
       starter_code: {
-        type: SchemaType.STRING,
+        type: Type.STRING,
         description: "Optional starter code to help the candidate begin",
       },
       language: {
-        type: SchemaType.STRING,
+        type: Type.STRING,
         description: "Programming language for the code (e.g., 'python', 'javascript')",
       },
       test_cases: {
-        type: SchemaType.ARRAY,
+        type: Type.ARRAY,
         description: "Example test cases to demonstrate the expected behavior",
         items: {
-          type: SchemaType.OBJECT,
+          type: Type.OBJECT,
           properties: {
             input: {
-              type: SchemaType.STRING,
+              type: Type.STRING,
               description: "Input for the test case"
             },
             output: {
-              type: SchemaType.STRING,
+              type: Type.STRING,
               description: "Expected output for the test case"
             }
           }
@@ -74,8 +73,9 @@ function CodeQuestionComponent() {
 
   // Listen for tool calls
   useEffect(() => {
-    const onToolCall = async (toolCall: ToolCall) => {
-      for (const fc of toolCall.functionCalls) {
+    const onToolCall = async (toolCall: LiveServerToolCall) => {
+      const functionCalls = toolCall.functionCalls || [];
+      for (const fc of functionCalls) {
         if (fc.name === "show_code_question") {
           const args = fc.args as any;
           setQuestion({

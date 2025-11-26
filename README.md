@@ -52,7 +52,7 @@ export function Altair() {
 
   useEffect(() => {
     setConfig({
-      model: "models/gemini-2.0-flash-exp",
+      model: "gemini-live-2.5-flash-preview",
       systemInstruction: {
         parts: [
           {
