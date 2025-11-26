@@ -8,11 +8,10 @@
  *     http://www.apache.org/licenses/LICENSE-2.0
  */
 
-import { type FunctionDeclaration, SchemaType } from "@google/generative-ai";
+import { type FunctionDeclaration, Type, LiveServerToolCall, Modality } from "@google/genai";
 import { useEffect, useRef, useState, memo } from "react";
 import vegaEmbed from "vega-embed";
 import { useLiveAPIContext } from "../../contexts/LiveAPIContext";
-import { ToolCall } from "../../multimodal-live-types";
 import { declaration as codeQuestionDeclaration } from "../code-question/CodeQuestion";
 
 // Function Declaration for Vega Graph Rendering
@@ -20,10 +19,10 @@ const declaration: FunctionDeclaration = {
   name: "render_altair",
   description: "Displays an Altair graph in JSON format.",
   parameters: {
-    type: SchemaType.OBJECT,
+    type: Type.OBJECT,
     properties: {
       json_graph: {
-        type: SchemaType.STRING,
+        type: Type.STRING,
         description: "JSON STRING representation of the graph to render. Must be a string, not a JSON object.",
       },
     },
@@ -39,12 +38,9 @@ function AltairComponent() {
   // Set system config
   useEffect(() => {
     setConfig({
-      model: "models/gemini-2.0-flash-exp",
-      generationConfig: {
-        responseModalities: "audio",
-        speechConfig: {
-          voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } },
-        },
+      responseModalities: [Modality.AUDIO],
+      speechConfig: {
+        voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } },
       },
       systemInstruction: {
         parts: [
@@ -85,8 +81,9 @@ Be conversational but professional. Listen carefully to their responses and ask 
 
   // Listen for tool calls
   useEffect(() => {
-      const onToolCall = async (toolCall: ToolCall) => {
-        for (const fc of toolCall.functionCalls) {
+      const onToolCall = async (toolCall: LiveServerToolCall) => {
+        const functionCalls = toolCall.functionCalls || [];
+        for (const fc of functionCalls) {
           if (fc.name === "render_altair") {
             const str = (fc.args as any).json_graph;
             setJSONString(str);
