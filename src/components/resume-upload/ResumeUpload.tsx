@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useLiveAPIContext } from "../../contexts/LiveAPIContext";
 import * as pdfjs from 'pdfjs-dist';
 import parseResume from '../../lib/resume-parser';
@@ -17,6 +17,46 @@ export default function ResumeUpload({ onClose }: { onClose: () => void }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { client } = useLiveAPIContext();
   const dropAreaRef = useRef<HTMLDivElement>(null);
+
+  const extractTextFromFile = async (file: File): Promise<string> => {
+    if (file.type === "application/pdf") {
+      return extractTextFromPdf(file);
+    } else if (
+      file.type === "text/plain" ||
+      file.type === "application/rtf" ||
+      file.type.includes("document") ||
+      file.name.endsWith('.txt') ||
+      file.name.endsWith('.md')
+    ) {
+      return extractTextFromTextFile(file);
+    } else {
+      throw new Error("Unsupported file type. Please upload a PDF, DOC, TXT, or RTF file.");
+    }
+  };
+
+  const handleFiles = useCallback(async (file: File) => {
+    setIsLoading(true);
+    setError("");
+    setFileName(file.name);
+
+    try {
+      const text = await extractTextFromFile(file);
+      if (text && text.trim()) {
+        setResumeText(text);
+        
+        // Parse the resume to extract structured information
+        const parsed = parseResume(text);
+        setParsedResume(parsed);
+      } else {
+        throw new Error("Could not extract text from this file.");
+      }
+    } catch (err) {
+      console.error("File processing error:", err);
+      setError("Failed to read the file. Please try another file format.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     // Add drag and drop event handlers
@@ -73,53 +113,13 @@ export default function ResumeUpload({ onClose }: { onClose: () => void }) {
       
       dropArea.removeEventListener('drop', handleDrop);
     };
-  }, []);
+  }, [handleFiles]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     
     handleFiles(file);
-  };
-
-  const handleFiles = async (file: File) => {
-    setIsLoading(true);
-    setError("");
-    setFileName(file.name);
-
-    try {
-      const text = await extractTextFromFile(file);
-      if (text && text.trim()) {
-        setResumeText(text);
-        
-        // Parse the resume to extract structured information
-        const parsed = parseResume(text);
-        setParsedResume(parsed);
-      } else {
-        throw new Error("Could not extract text from this file.");
-      }
-    } catch (err) {
-      console.error("File processing error:", err);
-      setError("Failed to read the file. Please try another file format.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const extractTextFromFile = async (file: File): Promise<string> => {
-    if (file.type === "application/pdf") {
-      return extractTextFromPdf(file);
-    } else if (
-      file.type === "text/plain" ||
-      file.type === "application/rtf" ||
-      file.type.includes("document") ||
-      file.name.endsWith('.txt') ||
-      file.name.endsWith('.md')
-    ) {
-      return extractTextFromTextFile(file);
-    } else {
-      throw new Error("Unsupported file type. Please upload a PDF, DOC, TXT, or RTF file.");
-    }
   };
 
   const extractTextFromTextFile = (file: File): Promise<string> => {
