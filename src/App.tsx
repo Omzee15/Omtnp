@@ -67,6 +67,9 @@ function App() {
                   textShadow: "1px 1px 3px rgba(0,0,0,0.8)"
                 }}
               >
+                 <div style={{ fontSize: "0.85em", marginBottom: "15px", color: "#ffeb3b", fontWeight: "bold" }}>
+                   Currently the app is being made better for other browsers, I request you to use Chrome for the usage of the application
+                 </div>
                  <div style={{ fontSize: "1.2em", marginBottom: "10px" }}>
                    The Tool to Get Your Interviews Cleared
                  </div>
